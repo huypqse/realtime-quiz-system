@@ -8,6 +8,7 @@ import (
 	"realtime_quiz_system/internal/service"
 
 	"github.com/gogf/gf/v2/os/glog"
+	"github.com/google/uuid"
 )
 
 type UserServiceImpl struct {
@@ -47,8 +48,26 @@ func (l *UserServiceImpl) Register(ctx context.Context, req *do.UserRegisterReq)
 		return nil, errors.New("user with this email already exists")
 	}
 
+	userId, err := uuid.NewV7()
+	if err != nil {
+		l.logger.Error(ctx, "Failed to generate UUID", "error", err)
+		return nil, errors.New("failed to generate user ID")
+	}
+
+	// Insert new user
+	_, err = dao.Users.Ctx(ctx).Data(do.Users{
+		Id:       userId,
+		Username: req.Username,
+		Email:    req.Email,
+	}).Insert()
+	if err != nil {
+		l.logger.Error(ctx, "Failed to insert user", "error", err)
+		return nil, errors.New("failed to create user")
+	}
+
 	l.logger.Info(ctx, "User registered successfully",
-		"username", req.Username)
+		"username", req.Username,
+		"id", userId.String())
 
 	return &do.UserRegisterRes{
 		Username: req.Username,
