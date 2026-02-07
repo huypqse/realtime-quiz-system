@@ -10,9 +10,24 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ConfigJWTHashFunction = jwt.SigningMethodHS256
+
+// HashPassword generates a bcrypt hash of the password
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
+// VerifyPassword compares a password with a hash
+func VerifyPassword(password, hash string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+}
 
 func GenJWT(payload jwt.MapClaims) (token string, err error) {
 	tokenJWT := jwt.NewWithClaims(ConfigJWTHashFunction, payload)

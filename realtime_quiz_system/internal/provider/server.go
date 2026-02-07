@@ -4,9 +4,11 @@ import (
 	"context"
 	"realtime_quiz_system/internal/config"
 	"realtime_quiz_system/internal/controller"
+	"realtime_quiz_system/internal/service"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/net/goai"
 	"github.com/gogf/gf/v2/os/glog"
 	"go.uber.org/fx"
 )
@@ -17,6 +19,7 @@ type ServerParams struct {
 
 	Logger         *glog.Logger
 	UserController *controller.UserController
+	TokenService   service.TokenService
 }
 
 // ProvideServer provides the HTTP server
@@ -39,6 +42,18 @@ func ProvideServer() fx.Option {
 					openapi.Info.Version = "1.0.0"
 					openapi.Info.Description = "API documentation for the Realtime Quiz System"
 
+					// Add Bearer token authentication to OpenAPI spec
+					openapi.Components.SecuritySchemes = goai.SecuritySchemes{
+						"BearerAuth": goai.SecuritySchemeRef{
+							Value: &goai.SecurityScheme{
+								Type:         "http",
+								Scheme:       "bearer",
+								BearerFormat: "JWT",
+								Description:  "Enter your JWT token in the format: your-token-here",
+							},
+						},
+					}
+
 					s.Group("/", func(group *ghttp.RouterGroup) {
 						group.Middleware(CustomResponseHandler)
 
@@ -46,7 +61,16 @@ func ProvideServer() fx.Option {
 							r.Response.ServeFile("resource/public/html/swagger.html")
 						})
 
-						group.Bind(params.UserController)
+						// Public routes (no authentication required)
+						group.POST("/register", params.UserController.Register)
+						group.POST("/login", params.UserController.Login)
+
+						// Protected routes (authentication required)
+						group.Group("/", func(authGroup *ghttp.RouterGroup) {
+							authGroup.Middleware(AuthMiddleware(params.TokenService))
+							authGroup.GET("/profile", params.UserController.Profile)
+							authGroup.PUT("/profile", params.UserController.UpdateProfile)
+						})
 					})
 
 					go func() {

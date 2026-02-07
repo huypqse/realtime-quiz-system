@@ -16,8 +16,17 @@ import (
 
 // TokenService handles token generation and verification
 type TokenService interface {
-	NewAccessToken(iss, sub string) *AccessToken
+	NewAccessToken(userId, username string) *AccessToken
 	NewRefreshToken(ctx context.Context, uuid, uid string) *RefreshToken
+	GenerateAuthToken(userId, username string) (string, error)
+	ValidateToken(ctx context.Context, token string) (*TokenClaims, error)
+}
+
+type TokenClaims struct {
+	UserId    string `json:"user_id"`
+	Username  string `json:"username"`
+	IssuedAt  int64  `json:"issued_at"`
+	ExpiresAt int64  `json:"expires_at"`
 }
 
 type tokenService struct {
@@ -31,10 +40,62 @@ func NewTokenService(cfg *config.Config) TokenService {
 	}
 }
 
-func (ts *tokenService) NewAccessToken(iss, sub string) *AccessToken {
+// GenerateAuthToken generates JWT token with 7-day expiration
+func (ts *tokenService) GenerateAuthToken(userId, username string) (string, error) {
+	now := time.Now()
+	expiresAt := now.Add(7 * 24 * time.Hour) // 7 days
+
+	claims := jwt.MapClaims{
+		"user_id":    userId,
+		"username":   username,
+		"issued_at":  now.Unix(),
+		"expires_at": expiresAt.Unix(),
+		"exp":        expiresAt.Unix(), // Standard JWT expiration claim
+		"iat":        now.Unix(),       // Standard JWT issued at claim
+	}
+
+	return utility.GenJWT(claims)
+}
+
+// ValidateToken validates JWT token and returns claims
+func (ts *tokenService) ValidateToken(ctx context.Context, token string) (*TokenClaims, error) {
+	jwtMap, err := utility.ParseJWT(token)
+	if err != nil {
+		return nil, err
+	}
+
+	userId, ok := jwtMap["user_id"].(string)
+	if !ok {
+		return nil, gerror.NewCode(consts.CodeInvalidToken)
+	}
+
+	username, ok := jwtMap["username"].(string)
+	if !ok {
+		return nil, gerror.NewCode(consts.CodeInvalidToken)
+	}
+
+	issuedAt, ok := jwtMap["issued_at"].(float64)
+	if !ok {
+		return nil, gerror.NewCode(consts.CodeInvalidToken)
+	}
+
+	expiresAt, ok := jwtMap["expires_at"].(float64)
+	if !ok {
+		return nil, gerror.NewCode(consts.CodeInvalidToken)
+	}
+
+	return &TokenClaims{
+		UserId:    userId,
+		Username:  username,
+		IssuedAt:  int64(issuedAt),
+		ExpiresAt: int64(expiresAt),
+	}, nil
+}
+
+func (ts *tokenService) NewAccessToken(userId, username string) *AccessToken {
 	return &AccessToken{
-		Iss:    iss,
-		Sub:    sub,
+		Iss:    userId,
+		Sub:    username,
 		config: ts.config,
 	}
 }

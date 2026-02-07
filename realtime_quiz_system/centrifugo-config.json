@@ -1,0 +1,33 @@
+{
+  "token_hmac_secret_key": "change-this-secret-key-in-production",
+  "api_key": "change-this-api-key-in-production",
+  "admin": true,
+  "admin_password": "admin",
+  "admin_secret": "admin-secret",
+  "allowed_origins": [
+    "http://localhost:8000",
+    "http://localhost:3000"
+  ],
+  "engine": "redis",
+  "redis_address": "redis:6379",
+  "namespaces": [
+    {
+      "name": "quiz",
+      "publish": true,
+      "presence": true,
+      "join_leave": true,
+      "history_size": 10,
+      "history_ttl": "300s",
+      "force_recovery": true
+    },
+    {
+      "name": "leaderboard",
+      "publish": true,
+      "presence": true,
+      "history_size": 50,
+      "history_ttl": "600s"
+    }
+  ],
+  "log_level": "info",
+  "health": true
+}
