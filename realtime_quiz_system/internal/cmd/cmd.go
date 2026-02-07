@@ -1,30 +1,20 @@
 package cmd
 
 import (
-	"context"
+	"realtime_quiz_system/internal/provider"
 
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/os/gcmd"
-
-	"realtime_quiz_system/internal/controller/hello"
+	"go.uber.org/fx"
 )
 
-var (
-	Main = gcmd.Command{
-		Name:  "main",
-		Usage: "main",
-		Brief: "start http server",
-		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			s := g.Server()
-			s.Group("/", func(group *ghttp.RouterGroup) {
-				group.Middleware(ghttp.MiddlewareHandlerResponse)
-				group.Bind(
-					hello.NewV1(),
-				)
-			})
-			s.Run()
-			return nil
-		},
-	}
-)
+// RunApp initializes and runs the application with Fx
+func RunApp() {
+	app := fx.New(
+		// Configure Fx logger to be less verbose
+		fx.NopLogger,
+
+		// Load all providers
+		provider.Module,
+	)
+
+	app.Run()
+}

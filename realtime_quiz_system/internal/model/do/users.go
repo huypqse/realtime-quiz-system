@@ -20,3 +20,13 @@ type Users struct {
 	CreatedAt *gtime.Time //
 	UpdatedAt *gtime.Time //
 }
+
+type UserRegisterReq struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+type UserRegisterRes struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
