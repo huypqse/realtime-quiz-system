@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	user "realtime_quiz_system/api"
+	"realtime_quiz_system/api"
 	"realtime_quiz_system/internal/model/do"
 	"realtime_quiz_system/internal/service"
 
@@ -24,7 +24,7 @@ func NewUserController(
 	}
 }
 
-func (uc *UserController) Register(ctx context.Context, req *user.UserRegisterReq) (res *user.UserRegisterRes, err error) {
+func (uc *UserController) Register(ctx context.Context, req *api.UserRegisterReq) (res *api.UserRegisterRes, err error) {
 	uc.logger.Info(ctx, "Received user registration request",
 		"username", req.Username,
 		"email", req.Email)
@@ -44,7 +44,7 @@ func (uc *UserController) Register(ctx context.Context, req *user.UserRegisterRe
 		return nil, err
 	}
 
-	res = &user.UserRegisterRes{
+	res = &api.UserRegisterRes{
 		Id:       doRes.Id,
 		Username: doRes.Username,
 		Email:    doRes.Email,
@@ -58,7 +58,7 @@ func (uc *UserController) Register(ctx context.Context, req *user.UserRegisterRe
 	return res, nil
 }
 
-func (uc *UserController) Login(ctx context.Context, req *user.UserLoginReq) (res *user.UserLoginRes, err error) {
+func (uc *UserController) Login(ctx context.Context, req *api.UserLoginReq) (res *api.UserLoginRes, err error) {
 	uc.logger.Info(ctx, "Received user login request",
 		"usernameOrEmail", req.UsernameOrEmail)
 
@@ -75,7 +75,7 @@ func (uc *UserController) Login(ctx context.Context, req *user.UserLoginReq) (re
 		return nil, err
 	}
 
-	res = &user.UserLoginRes{
+	res = &api.UserLoginRes{
 		Id:        doRes.Id,
 		Username:  doRes.Username,
 		Email:     doRes.Email,
@@ -90,7 +90,7 @@ func (uc *UserController) Login(ctx context.Context, req *user.UserLoginReq) (re
 	return res, nil
 }
 
-func (uc *UserController) Profile(ctx context.Context, req *user.UserProfileReq) (res *user.UserProfileRes, err error) {
+func (uc *UserController) Profile(ctx context.Context, req *api.UserProfileReq) (res *api.UserProfileRes, err error) {
 	// Get user ID from context (set by auth middleware)
 	userId := ctx.Value("user_id")
 	if userId == nil {
@@ -114,7 +114,7 @@ func (uc *UserController) Profile(ctx context.Context, req *user.UserProfileReq)
 		return nil, err
 	}
 
-	res = &user.UserProfileRes{
+	res = &api.UserProfileRes{
 		Id:              doRes.Id,
 		Username:        doRes.Username,
 		Email:           doRes.Email,
@@ -131,7 +131,7 @@ func (uc *UserController) Profile(ctx context.Context, req *user.UserProfileReq)
 	return res, nil
 }
 
-func (uc *UserController) UpdateProfile(ctx context.Context, req *user.UserUpdateProfileReq) (res *user.UserUpdateProfileRes, err error) {
+func (uc *UserController) UpdateProfile(ctx context.Context, req *api.UserUpdateProfileReq) (res *api.UserUpdateProfileRes, err error) {
 	// Get user ID from context (set by auth middleware)
 	userId := ctx.Value("user_id")
 	if userId == nil {
@@ -160,7 +160,7 @@ func (uc *UserController) UpdateProfile(ctx context.Context, req *user.UserUpdat
 		return nil, err
 	}
 
-	res = &user.UserUpdateProfileRes{
+	res = &api.UserUpdateProfileRes{
 		Message: "Profile updated successfully",
 	}
 

@@ -19,6 +19,7 @@ type ServerParams struct {
 
 	Logger         *glog.Logger
 	UserController *controller.UserController
+	QuizController *controller.QuizController
 	TokenService   service.TokenService
 }
 
@@ -65,11 +66,22 @@ func ProvideServer() fx.Option {
 						group.POST("/register", params.UserController.Register)
 						group.POST("/login", params.UserController.Login)
 
+						// Public quiz routes
+						group.GET("/quizzes", params.QuizController.ListQuizzes)
+						group.GET("/quizzes/{id}", params.QuizController.GetQuiz)
+
 						// Protected routes (authentication required)
 						group.Group("/", func(authGroup *ghttp.RouterGroup) {
 							authGroup.Middleware(AuthMiddleware(params.TokenService))
+
+							// User profile routes
 							authGroup.GET("/profile", params.UserController.Profile)
 							authGroup.PUT("/profile", params.UserController.UpdateProfile)
+
+							// Quiz management routes (requires authentication)
+							authGroup.POST("/quizzes", params.QuizController.CreateQuiz)
+							authGroup.PUT("/quizzes/{id}", params.QuizController.UpdateQuiz)
+							authGroup.DELETE("/quizzes/{id}", params.QuizController.DeleteQuiz)
 						})
 					})
 
