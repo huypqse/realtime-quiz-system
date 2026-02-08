@@ -9,6 +9,7 @@ var Module = fx.Options(
 	ProvideConfig(),
 	ProvideLogger(),
 	ProvideDatabase(),
+	ProvideRedis(),
 	ProvideDAOs(),
 	ProvideServices(),
 	ProvideServer(),

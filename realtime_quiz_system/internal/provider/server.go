@@ -17,10 +17,11 @@ import (
 type ServerParams struct {
 	fx.In
 
-	Logger         *glog.Logger
-	UserController *controller.UserController
-	QuizController *controller.QuizController
-	TokenService   service.TokenService
+	Logger            *glog.Logger
+	UserController    *controller.UserController
+	QuizController    *controller.QuizController
+	SessionController *controller.SessionController
+	TokenService      service.TokenService
 }
 
 // ProvideServer provides the HTTP server
@@ -82,6 +83,11 @@ func ProvideServer() fx.Option {
 							authGroup.POST("/quizzes", params.QuizController.CreateQuiz)
 							authGroup.PUT("/quizzes/{id}", params.QuizController.UpdateQuiz)
 							authGroup.DELETE("/quizzes/{id}", params.QuizController.DeleteQuiz)
+
+							// Session management routes (requires authentication)
+							authGroup.POST("/sessions", params.SessionController.CreateSession)
+							authGroup.POST("/sessions/join", params.SessionController.JoinSession)
+							authGroup.GET("/sessions/{id}", params.SessionController.GetSession)
 						})
 					})
 

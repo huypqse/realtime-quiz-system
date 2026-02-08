@@ -10,5 +10,6 @@ func ProvideController() fx.Option {
 	return fx.Options(
 		fx.Provide(controller.NewUserController),
 		fx.Provide(controller.NewQuizController),
+		fx.Provide(controller.NewSessionController),
 	)
 }

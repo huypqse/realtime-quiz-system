@@ -11,7 +11,9 @@ import (
 func ProvideServices() fx.Option {
 	return fx.Options(
 		fx.Provide(service.NewTokenService),
-		fx.Provide(logic.NewUserService), // Register UserService implementation
-		fx.Provide(logic.NewQuizService), // Register QuizService implementation
+		fx.Provide(logic.NewUserService),       // Register UserService implementation
+		fx.Provide(logic.NewQuizService),       // Register QuizService implementation
+		fx.Provide(logic.NewSessionService),    // Register SessionService implementation
+		fx.Provide(logic.NewCentrifugoService), // Register CentrifugoService implementation
 	)
 }

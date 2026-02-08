@@ -1,10 +1,12 @@
 package config
 
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Logger   LoggerConfig   `yaml:"logger"`
-	Database DatabaseConfig `yaml:"database"`
-	Auth     AuthConfig     `yaml:"auth"`
+	Server     ServerConfig     `yaml:"server"`
+	Logger     LoggerConfig     `yaml:"logger"`
+	Database   DatabaseConfig   `yaml:"database"`
+	Auth       AuthConfig       `yaml:"auth"`
+	Redis      RedisConfig      `yaml:"redis"`
+	Centrifugo CentrifugoConfig `yaml:"centrifugo"`
 }
 type LoggerConfig struct {
 	Path                 string   `yaml:"path"`
@@ -56,4 +58,22 @@ type AuthConfig struct {
 	SecretKey                string `yaml:"secretKey"`
 	AccessTokenExpireMinute  int    `yaml:"accessTokenExpireMinute"`
 	RefreshTokenExpireMinute int    `yaml:"refreshTokenExpireMinute"`
+}
+
+type RedisConfig struct {
+	Host        string `yaml:"host"`
+	Port        int    `yaml:"port"`
+	Password    string `yaml:"password"`
+	DB          int    `yaml:"db"`
+	MaxIdle     int    `yaml:"maxIdle"`
+	MaxActive   int    `yaml:"maxActive"`
+	IdleTimeout string `yaml:"idleTimeout"`
+	WaitTimeout string `yaml:"waitTimeout"`
+}
+
+type CentrifugoConfig struct {
+	URL      string `yaml:"url"`
+	APIKey   string `yaml:"apiKey"`
+	Secret   string `yaml:"secret"`
+	TokenTTL string `yaml:"tokenTTL"`
 }
